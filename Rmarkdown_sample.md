@@ -1,34 +1,7 @@
 Prediction Report
 ========================================================
 
-This is an R Markdown document for the Data Science/Practical Machine Learning assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearl 11mb training set.
-Markdown is a simple formatting syntax for authoring web pages (click the **Help** toolbar button for
-
-When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-
-```r
-summary(cars)
-```
-
-```
-##      speed           dist    
-##  Min.   : 4.0   Min.   :  2  
-##  1st Qu.:12.0   1st Qu.: 26  
-##  Median :15.0   Median : 36  
-##  Mean   :15.4   Mean   : 43  
-##  3rd Qu.:19.0   3rd Qu.: 56  
-##  Max.   :25.0   Max.   :120
-```
-
-You can also embed plots, for example:
-
-
-```r
-plot(cars)
-```
-
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+This is an R Markdown document for the **Data Science/Practical Machine Learning** assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearly 11mb training set.
 
 - 1. Read in the data from pml-training excel, let R to auto fit the attribute types
 
@@ -172,7 +145,7 @@ plot(density)
 ```
 
 ![plot of chunk check range](figure/check range.png) 
--8. start training with preprocessing
+- 8. start training with preprocessing. Using the model as KNN and cross validation for training control.
 
 ```r
 {
@@ -225,4 +198,21 @@ confusionMatrix(testing$classe, predict(knnfit, pretest))
 ## Detection Rate          0.277    0.184    0.167    0.156    0.179
 ## Detection Prevalence    0.284    0.194    0.174    0.164    0.184
 ## Balanced Accuracy       0.985    0.977    0.952    0.972    0.995
+```
+- 9. Read in the test data set for the real prediction, here we should apply the same preprocssing approach for the test data as for the training set.
+
+```r
+{
+  testdata <- read.csv("D:\\Machine Learning\\R\\pml-testing.csv")
+udata<-testdata[,-c(1,2,3,4,5,6,12,13,14,15,16,    17,18,  19,  20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	50,	51,	52,	53,	54,	55,	56,	57,	58,	59,	69,	70,	71,	72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	87,	88,	89,	90,	91,	92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	125,	126,	127,	128,	129,	130,	131,	132,	133,	134,	135,	136,	137,	138,	139,	141,	142,	143,	144,	145,	146,	147,	148,	149,	150)]
+
+utest<-predict(preObj, udata[,-54])
+class1<-predict(knnfit, utest[,-54])
+class1
+}
+```
+
+```
+##  [1] B A A A A E D B A A B C B A E E A B B B
+## Levels: A B C D E
 ```

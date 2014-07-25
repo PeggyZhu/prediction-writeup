@@ -1,20 +1,7 @@
 Prediction Report
 ========================================================
 
-This is an R Markdown document for the Data Science/Practical Machine Learning assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearl 11mb training set.
-Markdown is a simple formatting syntax for authoring web pages (click the **Help** toolbar button for
-
-When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r}
-summary(cars)
-```
-
-You can also embed plots, for example:
-
-```{r fig.width=7, fig.height=6}
-plot(cars)
-```
+This is an R Markdown document for the **Data Science/Practical Machine Learning** assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearly 11mb training set.
 
 - 1. Read in the data from pml-training excel, let R to auto fit the attribute types
 
