@@ -1,0 +1,103 @@
+Prediction Report
+========================================================
+
+This is an R Markdown document for the Data Science/Practical Machine Learning assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearl 11mb training set.
+Markdown is a simple formatting syntax for authoring web pages (click the **Help** toolbar button for
+
+When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r fig.width=7, fig.height=6}
+plot(cars)
+```
+
+- 1. Read in the data from pml-training excel, let R to auto fit the attribute types
+
+```{r read in data}
+ndata <- read.csv("D:\\Machine Learning\\R\\pml-training.csv")
+```
+
+- 2. By checking the pml-training.csv in Excel, you can find there're actually many NA values inside the data set. Therefore, I checked the proportion of such NA values in a certain attribute max_roll_belt. To make sure about the NA proportion, I also check the  proportion for several other attributes like max_picth_belt, avg_roll_belt and avg_roll_arm. By looking at the histogram below, you can find the NA values occupy for only 20% in the max_roll_belt, and that's the same for all the other attributes. Such small proportion is not significant enough to delete such attributes.
+```{r NA hist}
+ndata$max_roll_belt<-as.numeric(ndata$max_roll_belt)
+hist(ndata$max_roll_belt, main='', xlab='max_roll_belt')
+```
+- 3. Check the relationship between the mentioned NA attributes with one factor column: new_window, and plot using codeslike below. Then we can find the NA values only occurs when new_window equals to 'no', for all attributes contains NA value.  
+```{r na-factor relationship}
+{
+  library("ggplot2")
+qplot(ndata$new_window,ndata$max_roll_belt, color=ndata$classe)
+##qplot(data$new_window,data$max_picth_belt, color=data$classe)
+##qplot(data$new_window,data$avg_roll_belt, color=data$classe)
+##qplot(data$new_window,data$stddev_yaw_arm, color=data$classe)
+}
+```    
+- 4. Go back to check the test data set, and it is apparent that the new_window equals to 'no' for the 20 predicting instance. Therefore, it is fair enough to delete all the NA attributes now for the purpose of predicting the 20 instance.Also, the timestamp are not relevant to the prediction on the classe, and the names are another factor attributes which seems not helpful in builing models using other numeric attribues, so also delete them here.
+```{r remove NA attributes}
+{
+  tdata<-ndata[,-c(1,2,3,4,5,6,12,13,14,15,16,  17,18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	50,	51,	52,	53,	54,	55,	56,	57,	58,	59,	69,	70,	71,	72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	87,	88,	89,	90,	91,	92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	125,	126,	127,	128,	129,	130,	131,	132,	133,	134,	135,	136,	137,	138,	139,	141,	142,	143,	144,	145,	146,	147,	148,	149,	150)]
+## I used Excel to pick up the index for such attributes, R loops with if conditions make be a easier approach.
+}
+```
+- 5. Check to see whether we still have nearzero attributes within the retained dataset tdata. Based on the nsv result, we have eliminated near zero attributes in the tdata so far.
+```{r nearzero}
+{
+library("caret")
+nsv<-nearZeroVar(tdata, saveMetrics=TRUE)
+nsv
+}
+```
+- 6. Set the training/testing partition using the training data set. Note that all the training cross validation will be done only on the training partition inside the training data set.
+```{r set partition}
+{
+set.seed(3472)
+inTrain<-createDataPartition(y=tdata$classe, p=0.75, list=FALSE)
+training<-tdata[inTrain,]
+testing<-tdata[-inTrain,]
+}
+```
+- 7. Check whether we should standarlize the data inside triaing partition. The purpose of standarlization is to avoid weighting to much for some atributes with large values and to cost less on training the model. Based on the picture below, we can see the data points are ranged around -100~100, which is in real need for standarlization in preprocessing.
+```{r check range}
+{
+  
+density<-data.frame(mean, sd)
+for (i in 2 : 53)
+{ 
+  mean<-mean(training[,i])
+  sd<-sd(training[,i])
+  density<-rbind(density, c(mean, sd))
+}
+plot(density)
+}
+```
+- 8. start training with preprocessing. Using the model as KNN and cross validation for training control.
+```{r training}
+{
+  
+preObj<-preProcess(training[,-54], method=c("center", "scale","pca"), thresh=0.9)
+predata<-predict(preObj,training[,-54])
+knnfit<-train(training$classe~., data=predata, method='knn',tuneLength = 9,trControl = trainControl(method = "cv"))
+#it's takes several minutes to generate the model!
+#testing
+
+pretest<-predict(preObj, testing[,-54])
+confusionMatrix(testing$classe, predict(knnfit, pretest))
+
+}
+```
+- 9. Read in the test data set for the real prediction, here we should apply the same preprocssing approach for the test data as for the training set.
+```{r prediction}
+{
+  testdata <- read.csv("D:\\Machine Learning\\R\\pml-testing.csv")
+udata<-testdata[,-c(1,2,3,4,5,6,12,13,14,15,16,    17,18,  19,  20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	50,	51,	52,	53,	54,	55,	56,	57,	58,	59,	69,	70,	71,	72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	87,	88,	89,	90,	91,	92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	125,	126,	127,	128,	129,	130,	131,	132,	133,	134,	135,	136,	137,	138,	139,	141,	142,	143,	144,	145,	146,	147,	148,	149,	150)]
+
+utest<-predict(preObj, udata[,-54])
+class1<-predict(knnfit, utest[,-54])
+class1
+}
+```
