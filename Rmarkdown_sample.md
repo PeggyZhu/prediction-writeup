@@ -1,7 +1,7 @@
 Prediction Report
 ========================================================
 
-This is an R Markdown document for the **Data Science/Practical Machine Learning** assignment write-up. The purpose of this assignment is to predic thhe class label for 20 testing instnace based on a nearly 11mb training set.
+This is an R Markdown document for the **Data Science/Practical Machine Learning** assignment write-up. The purpose of this assignment is to predict the class label for 20 testing instance based on a nearly 11MB training set collected by hand-on psychical devises. Training data and Testing data are all provided in csv which can be read into R for the purpose of training classification models. 
 
 - 1. Read in the data from pml-training excel, let R to auto fit the attribute types
 
@@ -35,7 +35,7 @@ qplot(ndata$new_window,ndata$max_roll_belt, color=ndata$classe)
 ```
 
 ![plot of chunk na-factor relationship](figure/na-factor relationship.png) 
-- 4. Go back to check the test data set, and it is apparent that the new_window equals to 'no' for the 20 predicting instance. Therefore, it is fair enough to delete all the NA attributes now for the purpose of predicting the 20 instance.Also, the timestamp are not relevant to the prediction on the classe, and the names are another factor attributes which seems not helpful in builing models using other numeric attribues, so also delete them here.
+- 4. Go back to check the test data set, and it is apparent that the new_window equals to 'no' for the 20 predicting instance. Therefore, it is fair enough to delete all the NA attributes now for the purpose of predicting the 20 instance.Also, the time stamp are not relevant to the prediction on the classe, and the names are another factor attributes which seems not helpful in building models using other numeric attributes, so also delete them here.
 
 ```r
 {
@@ -43,7 +43,7 @@ qplot(ndata$new_window,ndata$max_roll_belt, color=ndata$classe)
 ## I used Excel to pick up the index for such attributes, R loops with if conditions make be a easier approach.
 }
 ```
-- 5. Check to see whether we still have nearzero attributes within the retained dataset tdata. Based on the nsv result, we have eliminated near zero attributes in the tdata so far.
+- 5. Check to see whether we still have near zero attributes within the retained data set tdata. Based on the csv result, we have eliminated near zero attributes in the tdata so far.
 
 ```r
 {
@@ -118,7 +118,7 @@ nsv
 ## magnet_forearm_z         1.000       8.57711   FALSE FALSE
 ## classe                   1.470       0.02548   FALSE FALSE
 ```
-- 6. Set the training/testing partition using the training data set. Note that all the training cross validation will be done only on the training partition inside the training data set.
+- 6. Set the training/testing partition using the training data set. Note that all the cross validation during model training will be done only on the training partition inside the training data set. The test data partitioned here is only for checking the robust and accuracy for the training model in case the model is over fitting.
 
 ```r
 {
@@ -128,7 +128,7 @@ training<-tdata[inTrain,]
 testing<-tdata[-inTrain,]
 }
 ```
-- 7. Check whether we should standarlize the data inside triaing partition. The purpose of standarlization is to avoid weighting to much for some atributes with large values and to cost less on training the model. Based on the picture below, we can see the data points are ranged around -100~100, which is in real need for standarlization in preprocessing.
+- 7. Check whether we should standardize the data inside trialing partition. The purpose of standardization is to avoid weighting to much for some tributes with large values and to cost less on training the model. Based on the picture below, we can see the data points are ranged around -100~100, which is in real need for standardization in reprocessing.
 
 ```r
 {
@@ -145,7 +145,8 @@ plot(density)
 ```
 
 ![plot of chunk check range](figure/check range.png) 
-- 8. start training with preprocessing. Using the model as KNN and cross validation for training control.
+- 8. Start training with preprocessing using methods center, scale to standardize the training data set, use method of PCA to generate the most variant attribute that covers 90% of variety for the whole training attributes . The classification model used is KNN (K nearest neighbors) of which the K will auto fitted by the model during 10 fold cross validation ( using the code trControl). 
+     
 
 ```r
 {
